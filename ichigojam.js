@@ -1,80 +1,79 @@
-const CHAR_SX = 8;
-const CHAR_SY = 8;
+const CHAR_W = 8;
+const CHAR_H = 8;
  
-var newStd15 = function(context, screen_sx, screen_sy, cb_sx, cb_sy){
+var newStd15 = function(context, screenW, screenH, buffW, buffH) {
     var that = {};
-    var cb_unit = screen_sx / cb_sx / CHAR_SX;
-    var charBuff = new Array(cb_sx*cb_sy);
-    var cursor_x = 0;
-    var cursor_y = 0;
+    var dotW = screenW / buffW / CHAR_W;
+    var dotH = screenH / buffH / CHAR_H;
+    var buff = new Array(buffW * buffH);
+    var cursorX = 0;
+    var cursorY = 0;
     
     that.locate = function (x, y) {
-	cursor_x = x;
-	cursor_y = y;
+	cursorX = x;
+	cursorY = y;
     }
  
     that.putc = function (c) {
-	that.putcLoc(cursor_x, cursor_y, c);
-    }
- 
-    that.putcLoc = function (x, y, c) {
-	charBuff [y*cb_sx+x] = c
+	that.setChar(cursorX,cursorY,c);
     }
  
     that.scr = function (x, y) {
-	return charBuff [y*cb_sx+x];
+	return buff [y*buffW+x];
     }
  
     that.cls = function () {
-	for (var y = 0; y < cb_sy; ++y) {
-	    for (var x = 0; x < cb_sx; ++x) {
-		charBuff [y*cb_sx+x] = 0;
+	for (var y = 0; y < buffH; y++) {
+	    for (var x = 0; x < buffW; x++) {
+		that.setChar(x,y,0);
 	    }
 	}
     }
  
     that.scroll = function () {
-	for (var y = 0; y < cb_sy; ++y) {
-	    for (var x = 0; x < cb_sx; ++x ) {
-		if (y == cb_sy-1) {
-		    charBuff [y*cb_sx+x] = 0;
+	for (var y = 0; y < buffH; y++) {
+	    for (var x = 0; x < buffW; x++ ) {
+		if (y == buffH-1) {
+		    that.setChar(x,y,0);
 		} else {
-		    charBuff [y*cb_sx+x] = charBuff [(y+1)*cb_sx+x];
+		    that.setChar(x,y,that.scr(x,(y+1)));
 		}
 	    }
 	}
     }
 
-    that.mapchar = function (cx, cy, c) {
-	var glyph = FONT[c];
+    that.setChar = function (x, y, c) {
+	buff [y*buffW+x] = c
+    }
+
+    that.drawChar = function (cx, cy, c) {
+	var glyph = ICHIGOJAM_FONT[c];
 	var hiBits = parseInt(glyph.substring(0,8),16);
 	var loBits = parseInt(glyph.substring(8),  16);
-	for(var y = 0 ; y < CHAR_SY; ++y) {
+	for (var y = 0 ; y < CHAR_H; y++) {
 	    var line;
-	    if(y < 4) {
-		line = (hiBits >> (CHAR_SX*(CHAR_SY-y-1-4))) & 0xff;
+	    if (y < 4) {
+		line = (hiBits >> (CHAR_W*(CHAR_H-y-1-4))) & 0xff;
 	    } else {
-		line = (loBits >> (CHAR_SX*(CHAR_SY-y-1))) & 0xff;
+		line = (loBits >> (CHAR_W*(CHAR_H-y-1))) & 0xff;
 	    }
-	    for(var x = 0 ; x < CHAR_SX; ++x) {
-		var n = (line >> (CHAR_SX-x-1)) & 0x1;
-		if(n){
-		    var x0 = (cx*CHAR_SX+x)*cb_unit;
-		    var y0 = (cy*CHAR_SY+y)*cb_unit;
-		    context.fillRect(x0,y0,cb_unit,cb_unit);
+	    for (var x = 0 ; x < CHAR_W; x++) {
+		if ((line >> (CHAR_W-x-1)) & 0x1 === 0x1) {
+		    var x0 = (cx*CHAR_W+x)*dotW;
+		    var y0 = (cy*CHAR_H+y)*dotH;
+	            context.fillStyle = "rgb(255,255,255)";
+		    context.fillRect(x0,y0,dotW,dotH);
 		}
 	    }
 	}
     }
-
     
-    that.draw = function() {
+    that.drawScreen = function() {
 	context.fillStyle = "rgb(0,0,0)";
-	context.fillRect(0,0,screen_sx,screen_sy);
-	context.fillStyle = "rgb(255,255,255)";
-	for (var y = 0; y < cb_sy; ++y) {
-	    for (var x = 0; x < cb_sx; ++x) {
-		that.mapchar(x, y, charBuff [y*cb_sx+x]);
+	context.fillRect(0,0,screenW,screenH);
+	for (var y = 0; y < buffH; y++) {
+	    for (var x = 0; x < buffW; x++) {
+		that.drawChar(x,y,that.scr(x,y));
 	    }
 	}  
     }
@@ -85,7 +84,13 @@ var newStd15 = function(context, screen_sx, screen_sy, cb_sx, cb_sy){
 }
 
 
-var FONT = [
+/**
+ *
+ *  CC BY IchigoJam & mitsuji.org
+ *  https://mitsuji.github.io/ichigojam-font.json/
+ *
+ */
+var ICHIGOJAM_FONT = [
     "0000000000000000", 
     "ffffffffffffffff", 
     "ffaaff55ffaaff55", 

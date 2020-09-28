@@ -12,22 +12,22 @@ window.onload = function(e){
     var x = 15;
     var running = true;
 
-    document.addEventListener("keydown",function(e){
-        if (e.key === "ArrowLeft")  --x;
-        if (e.key === "ArrowRight") ++x;
+    document.addEventListener("keydown",function(e) {
+        if (e.key === "ArrowLeft")  x--;
+        if (e.key === "ArrowRight") x++;
     });
 
-    setInterval(function(){
+    setInterval(function() {
         if (!running) return;
-        if(frame % 5 == 0) {
+        if (frame % 5 == 0) {
             std15.locate(x,5);
             std15.putc('0'.charCodeAt(0));
             std15.locate(Math.floor(Math.random() * 32.0),23);
             std15.putc('*'.charCodeAt(0));
             std15.scroll();
-            if(std15.scr(x,5) != 0) running = false;
+            if (std15.scr(x,5) != 0) running = false;
         }
-        std15.draw();
+        std15.drawScreen();
         ++frame;
     },16);
 }

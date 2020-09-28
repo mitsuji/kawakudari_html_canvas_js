@@ -1,6 +1,11 @@
+const DIR_UP    = 0;
+const DIR_RIGHT = 1;
+const DIR_DOWN  = 2;
+const DIR_LEFT  = 3;
+
 const CHAR_W = 8;
 const CHAR_H = 8;
- 
+
 var newStd15 = function(context, screenW, screenH, buffW, buffH) {
     var that = {};
     var dotW = screenW / buffW / CHAR_W;
@@ -48,13 +53,42 @@ var newStd15 = function(context, screenW, screenH, buffW, buffH) {
 	}
     }
  
-    that.scroll = function () {
+    that.scroll = function (dir) {
 	for (var y = 0; y < buffH; y++) {
 	    for (var x = 0; x < buffW; x++ ) {
-		if (y == buffH-1) {
-		    that.setChar(x,y,0);
-		} else {
-		    that.setChar(x,y,that.scr(x,(y+1)));
+		switch (dir) {
+		case DIR_UP: {
+		    if (y == buffH-1) {
+			that.setChar(x,y,0);
+		    } else {
+			that.setChar(x,y,that.scr(x,y+1));
+		    }
+		}
+		    break;
+		case DIR_RIGHT: {
+		    if (x == buffW-1) {
+			that.setChar(buffW-x-1,y,0);
+		    } else {
+			that.setChar(buffW-x-1,y,that.scr((buffW-x-1)-1,y));
+		    }
+		}
+		    break;
+		case DIR_DOWN: {
+		    if (y == buffH-1) {
+			that.setChar(x,(buffH-y-1),0);
+		    } else {
+			that.setChar(x,(buffH-y-1),that.scr(x,(buffH-y-1)-1));
+		    }
+		}
+		    break;
+		case DIR_LEFT: {
+		    if (x == buffW-1) {
+			that.setChar(x,y,0);
+		    } else {
+			that.setChar(x,y,that.scr(x+1,y));
+		    }
+		}
+		    break;
 		}
 	    }
 	}

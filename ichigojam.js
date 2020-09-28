@@ -16,8 +16,26 @@ var newStd15 = function(context, screenW, screenH, buffW, buffH) {
  
     that.putc = function (c) {
 	that.setChar(cursorX,cursorY,c);
+	if(cursorX < buffW-1) {
+	    cursorX ++;
+	} else {
+	    if(cursorY < buffH-1) {
+		cursorX = 0;
+		cursorY ++;
+	    }
+	}
     }
  
+    that.putstr = function (s) {
+	for (i = 0; i < s.length; i++) {
+	    that.putc(s.charCodeAt(i));
+	}
+    }
+
+    that.putnum = function (n) {
+	that.putstr(n.toString());
+    }
+
     that.scr = function (x, y) {
 	return buff [y*buffW+x];
     }

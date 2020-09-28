@@ -119,8 +119,34 @@ var newStd15 = function(context, screenW, screenH, buffW, buffH) {
 	    }
 	}
     }
-    
-    that.drawScreen = function() {
+
+    that.pset = function (x, y) {
+	var cx = Math.floor(x / 2);
+	var cy = Math.floor(y / 2);
+	var c = that.scr(cx,cy);
+
+	var tx = x % 2;
+	var ty = y % 2;
+
+	var b;
+	if (ty == 0 && tx == 0) {
+	    b = 1;
+	} else if (ty == 0 && tx != 0) {
+	    b = 2;
+	} else if (ty != 0 && tx == 0) {
+	    b = 4;
+	} else {
+	    b = 8;
+	}
+
+	if((c & 0xf0) == 0x80){
+	    that.setChar(cx, cy, c|b);
+	}else{
+	    that.setChar(cx, cy, 0x80|b);
+	}
+    }
+
+    that.drawScreen = function () {
 	context.fillStyle = "rgb(0,0,0)";
 	context.fillRect(0,0,screenW,screenH);
 	for (var y = 0; y < buffH; y++) {

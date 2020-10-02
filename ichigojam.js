@@ -110,7 +110,7 @@ var newStd15 = function(context, screenW, screenH, buffW, buffH) {
 		line = (loBits >> (CHAR_W*(CHAR_H-y-1))) & 0xff;
 	    }
 	    for (var x = 0 ; x < CHAR_W; x++) {
-		if ((line >> (CHAR_W-x-1)) & 0x1 === 0x1) {
+		if (((line>>(CHAR_W-x-1)) & 0x1) == 0x1) {
 		    var x0 = (cx*CHAR_W+x)*dotW;
 		    var y0 = (cy*CHAR_H+y)*dotH;
 	            context.fillStyle = "rgb(255,255,255)";
